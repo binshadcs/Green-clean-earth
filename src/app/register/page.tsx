@@ -1,12 +1,9 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
-
-import { Country, State, City }  from 'country-state-city';
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { Country, State, City } from "country-state-city";
 
 import {
   Form,
@@ -16,35 +13,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-
-import { cn } from "@/lib/utils"
-
-import { Check, ChevronsUpDown } from "lucide-react"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+
 import NavigationBar from "@/components/navigationBar";
 import Footer from "@/components/footer";
-
 
 const formSchema = z.object({
   category: z.string(),
@@ -68,6 +49,16 @@ const categories = [
   { label: "Promoter", value: "promoter" },
 ];
 
+const countryName = (countryCode) => {
+  const country = Country.getCountryByCode(countryCode);
+  return country ? country.name : '';
+};
+
+const stateName = (countryCode, stateCode) => {
+  const state = State.getStateByCodeAndCountry(stateCode,countryCode );
+  return state ? state.name : '';
+};
+
 const Register = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [stateOptions, setStateOptions] = useState([]);
@@ -76,15 +67,17 @@ const Register = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      // name: "",
-// location: "",
-// coname: "",
-// wnumber: 0,
-// profession: "",
-// lsgdzone: "",
-// username: "",
-// password: "",
-
+      category: "",
+      name: "",
+      coname: "",
+      wnumber: 0,
+      profession: "",
+      country: "",
+      state: "",
+      city: "",
+      lsgdzone: "",
+      username: "",
+      password: "",
     },
   });
 
@@ -92,9 +85,10 @@ const Register = () => {
     setSelectedCountry(value);
     form.setValue("country", value);
     const states = State.getStatesOfCountry(value).map((state) => (
+      state.isoCode !== "KL" ?
       <SelectItem key={state.isoCode} value={state.isoCode}>
         {state.name}
-      </SelectItem>
+      </SelectItem>:''
     ));
     setStateOptions(states);
     setCityOptions([]); // Reset city options when the country changes
@@ -111,13 +105,20 @@ const Register = () => {
   };
 
   const countryOptions = Country.getAllCountries().map((country) => (
+    country.isoCode !== "IN"?
     <SelectItem key={country.isoCode} value={country.isoCode}>
       {country.name}
-    </SelectItem>
+    </SelectItem>:''
   ));
 
   function onSubmit(values) {
-    console.log(values);
+
+    const mappedValues = {
+      ...values,
+      state: stateName(values.country, values.state),
+      country: countryName(values.country),
+    };
+    console.log(mappedValues);
   }
 
   return (
@@ -237,8 +238,10 @@ const Register = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                        <SelectItem key={"IN"} value={"IN"}>
+                            {"India"}
+                        </SelectItem>
                           {countryOptions}
-                          <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -258,6 +261,9 @@ const Register = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                        <SelectItem key={"KL"} value={"KL"}>
+                          {"Kerala"}
+                        </SelectItem>
                           {stateOptions.length > 0 ? stateOptions : <SelectItem value="other">Other</SelectItem>}
                         </SelectContent>
                       </Select>
@@ -270,11 +276,11 @@ const Register = () => {
                   name="district"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>District</FormLabel>
+                      <FormLabel>City</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Choose a district" />
+                            <SelectValue placeholder="Choose a city" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -324,7 +330,7 @@ const Register = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
+                <Button type="submit"  className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
               </form>
             </Form>
           </div>
@@ -336,5 +342,3 @@ const Register = () => {
 };
 
 export default Register;
-
-
