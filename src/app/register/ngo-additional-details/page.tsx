@@ -13,13 +13,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { apiURL } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
 
 import { useRouter } from 'next/navigation'
 
 import { Input } from "@/components/ui/input";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -34,7 +34,7 @@ import { useToast } from "@/components/ui/use-toast";
 const formSchema = z.object({
   members: z.coerce.number(),
 });
-export default function NgoAdditionalDetails() {
+function NgoAdditionalDetailsForm() {
   const searchParams = useSearchParams();
 
   const group_id = searchParams.get("group_id");
@@ -129,5 +129,13 @@ export default function NgoAdditionalDetails() {
       </div>
       <Footer />
     </section>
+  );
+}
+
+export default function NgoAdditionalDetails() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NgoAdditionalDetailsForm />
+    </Suspense>
   );
 }

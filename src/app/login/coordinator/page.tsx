@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import NavigationBar from "@/components/navigationBar";
 import Footer from "@/components/footer";
-import { apiURL } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast";

@@ -1,5 +1,5 @@
 "use client";
-import { apiURL, imageURL } from "@/app/api/status/route";
+import { apiURL, imageURL } from "@/app/requestsapi/request";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
@@ -35,7 +35,7 @@ const Table: React.FC<TableProps> = ({ headings, data }) => {
       try {
         const response = await axios.get(`${apiURL}/activity_category`);
         const categoriesData = response.data.activity_category;
-        const categoriesMap = categoriesData.reduce((acc, category) => {
+        const categoriesMap = categoriesData.reduce((acc:any, category:any) => {
           acc[category.activity_category_id] = category.activity_category;
           return acc;
         }, {});

@@ -15,11 +15,11 @@ import { Label } from "@/components/ui/label"
 import { LinkIcon } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react";
-import { apiURL, baseURL } from "../api/status/route";
+import { apiURL, baseURL } from "@/app/requestsapi/request";
 import { useToast } from "@/components/ui/use-toast"
 
 
-export function DialogAddUser({ id }) {
+export function DialogAddUser({ id }:any) {
   const { toast } = useToast()
 console.log(id);
   const referral_code = "abcde";

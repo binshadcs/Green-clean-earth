@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { BsImages, BsPaperclip } from "react-icons/bs";
 import { useToast } from "@/components/ui/use-toast";
-import { uploadPlantData } from "../api/upload-plant/route";
+import { uploadPlantData } from "@/app/requestsapi/request";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const MAX_FILE_SIZE = 1024 * 1024 * 5;
@@ -45,7 +45,7 @@ const formSchema = z.object({
 
 export type ContactFormData = z.infer<typeof formSchema>;
 
-export function FormUploadPlant({ token }) {
+export function FormUploadPlant({ token }:any) {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();

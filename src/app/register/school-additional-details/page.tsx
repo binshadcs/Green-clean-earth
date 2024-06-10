@@ -23,12 +23,12 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import NavigationBar from "@/components/navigationBar";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
 
-import { apiURL } from "@/app/api/status/route";
-import { fetchClubData } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
+import { fetchClubData } from "@/app/requestsapi/request";
 
 const formSchema = z.object({
   value: z.array(z.string()).nonempty("Please select at least one club"),
@@ -40,24 +40,29 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-const MultiSelectZod = () => {
-  const [clubOptions, setClubOptions] = useState([]);
+interface Club {
+  id: string;
+  name: string;
+}
+
+const MultiSelectZodForm = () => {
+  const [clubOptions, setClubOptions] = useState<Club[]>([]);
   const multiForm = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       value: [],
     },
   });
-  const searchParams = useSearchParams();
-  const groupId = searchParams.get("group_id");
-  const pno = searchParams.get("pno");
   const router = useRouter();
-  const { toast } = useToast()
+  const { toast } = useToast();
+
+  // Wrap useSearchParams in Suspense
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchClubs = async () => {
       try {
-        console.log('call');
+        console.log("call");
 
         const data = await fetchClubData();
         console.log(data);
@@ -70,19 +75,21 @@ const MultiSelectZod = () => {
   }, []);
 
   const onSubmit = async (data: FormSchema) => {
+    // Extracting values from searchParams
+    const groupId = searchParams.get("group_id");
+    const pno = searchParams.get("pno");
+
     const selectedClubIds = clubOptions
       .filter((club) => data.value.includes(club.name))
       .map((club) => club.id);
-    console.log(groupId)
-   
+
     const payload = {
-      groupId: parseInt(groupId),
-      clubs:  selectedClubIds.toString(),  // assuming data.value contains an array of selected club IDs
-      list_of_classes: data.list_of_classes.toString(), // assuming data.value contains an array of
-      no_of_students: parseInt(data.no_of_students),
-      phoneNUmber: parseInt(pno),
+      groupId: parseInt(groupId!),
+      clubs: selectedClubIds.toString(),
+      list_of_classes: data.list_of_classes.toString(),
+      no_of_students: parseInt(data.no_of_students.toString()),
+      phoneNUmber: parseInt(pno!),
     };
-    console.log(payload);
 
     try {
       const response = await fetch(`${apiURL}/group/school/register`, {
@@ -90,7 +97,7 @@ const MultiSelectZod = () => {
         body: JSON.stringify(payload),
         headers: {
           "Content-Type": "application/json",
-        }
+        },
       });
 
       if (!response.ok) {
@@ -102,15 +109,15 @@ const MultiSelectZod = () => {
         toast({
           title: "Account created.",
           description: "We've created your account for you.",
-        })
+        });
         router.push("/login/coordinator");
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Oops,Something went wrong !",
+        title: "Oops, Something went wrong!",
         description: "Please try again...",
-      })
+      });
       console.error("Error:", error);
     }
   };
@@ -202,21 +209,6 @@ const MultiSelectZod = () => {
                     </FormItem>
                   )}
                 />
-                
-                {/* <FormField
-                  control={multiForm.control}
-                  name="referral_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Referral name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="" {...field} />
-                      </FormControl>
-                      <FormDescription> </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                /> */}
                 <Button type="submit" className="bg-green-600">
                   Submit
                 </Button>
@@ -229,4 +221,11 @@ const MultiSelectZod = () => {
   );
 };
 
-export default MultiSelectZod;
+
+export default function MultiSelectZod() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MultiSelectZodForm />
+    </Suspense>
+  );
+}

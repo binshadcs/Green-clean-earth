@@ -1,19 +1,10 @@
-"use client";
-import { NextRequest, NextResponse } from "next/server"
-
-
-export function GET() {
-    return NextResponse.json({
-        status : "Good"
-    })
-}
 
 export const imageURL = process.env.NEXT_PUBLIC_IMAGE_URL
 export const baseURL = process.env.NEXT_PUBLIC_BASE_URL
 export const apiURL = process.env.NEXT_PUBLIC_API_URL
 
 
-export const fetchUserData = async (user_id, token) => {
+export const fetchUserData = async (user_id :any, token:any) => {
     console.log('Fetching user');
     const headersList = {
       "Authorization": `Bearer ${token}`,
@@ -45,7 +36,7 @@ export const fetchUserData = async (user_id, token) => {
     }
   };
 
-  export const fetchActivityData = async (token) => {
+  export const fetchActivityData = async (token: any) => {
     console.log('Fetching user');
     const headersList = {
       "Authorization": `Bearer ${token}`,

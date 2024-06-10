@@ -1,8 +1,9 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchUserData } from "@/app/api/status/route";
+import { fetchUserData } from "@/app/requestsapi/request";
 import Cookies from "js-cookie";
+
 interface Profile {
   name: string;
   location: string;
@@ -23,7 +24,7 @@ const initialProfile: Profile = {
   email: "example@email.com",
 };
 
-export default function ProfileTab({token}) {
+export default function ProfileTab({ token }: any) {
   const [profile, setProfile] = useState<Profile>(initialProfile);
   const searchParams = useSearchParams();
   const user_id = searchParams.get("id");
@@ -33,11 +34,12 @@ export default function ProfileTab({token}) {
       if (user_id && token) {
         const data = await fetchUserData(user_id, token);
         console.log(data);
-        if(data.user){
-          const {us_name,us_address,us_mobile,us_email,us_district} = data.user[0];
-        Cookies.set('name', us_name, { expires: 1 });
+        if (data.user) {
+          const { us_name, us_address, us_mobile, us_email, us_district } = data.user[0];
+          Cookies.set('name', us_name, { expires: 1 });
           setProfile({
             name: us_name,
+            location: us_district || "", // Set the location with a default value
             address: us_address,
             contact: us_mobile,
             email: us_email,
@@ -46,7 +48,7 @@ export default function ProfileTab({token}) {
       }
     }
     fetchData();
-  },[user_id, token]);
+  }, [user_id, token]);
 
   return (
     <div className="">
@@ -59,8 +61,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profile }) => {
   return (
     <div className="profile-details leading-normal">
       <h1 className="text-3xl font-semibold py-2">{profile.name}</h1>
+      <p><strong>Location:</strong> {profile.location}</p>
       <p><strong>Address:</strong> {profile.address}</p>
-      {/* <p><strong>Address:</strong> {profile.address}</p> */}
       <p><strong>Phone:</strong> {profile.contact}</p>
       <p><strong>Email:</strong> {profile.email}</p>
       <style jsx>{`

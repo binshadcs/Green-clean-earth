@@ -31,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { apiURL } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
 import { useToast } from "@/components/ui/use-toast"
 
 import {
@@ -61,12 +61,37 @@ const formSchema = z.object({
   password: z.string().max(255),
 })
 
+type Country = {
+  cntry_id: string;
+  cntry_name: string;
+}
+
+type State = {
+  st_id: string;
+  st_name: string;
+}
+
+type District = {
+  dis_id: string;
+  dis_name: string;
+}
+
+type Category = {
+  id: string;
+  group_type: string;
+}
+
+type Lsgd = {
+  lsg_id: string;
+  lsg_name: string;
+}
+
 export default function Register() {
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [category, setCategory] = useState([]);
-  const [lsgd, setLsgd] = useState([]);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [states, setStates] = useState<State[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [category, setCategory] = useState<Category[]>([]);
+  const [lsgd, setLsgd] = useState<Lsgd[]>([]);
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
@@ -124,7 +149,7 @@ export default function Register() {
     const dataWithIds = {
       ...values,
       categoryId: category.find((item) => item.group_type === values.categoryId)?.id.toString(),
-      country: country_id.toString(),
+      country: country_id!.toString(),
       state: states.find((item) => item.st_name === values.state)?.st_id,
       district: districts.find((item) => item.dis_name === values.district)?.dis_id,
       lsg: lsgd_id,

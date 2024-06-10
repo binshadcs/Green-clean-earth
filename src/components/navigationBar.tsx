@@ -9,7 +9,7 @@ const NavigationBar = () => {
   const [token, setToken] = useState(null);
 
   useEffect(() => {
-    const storedToken = Cookies.get('token');
+    const storedToken:any = Cookies.get('token');
     setToken(storedToken);
   }, []);
 

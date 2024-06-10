@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, Suspense } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
@@ -13,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { apiURL } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
 import { useRouter } from 'next/navigation';
 import {
   Select,
@@ -24,8 +25,29 @@ import {
 } from "@/components/ui/select";
 import NavigationBar from "@/components/navigationBar";
 import Footer from "@/components/footer";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from 'next/navigation';
 import { useToast } from "@/components/ui/use-toast";
+
+// Define types for the data
+interface Country {
+  cntry_id: number;
+  cntry_name: string;
+}
+
+interface State {
+  st_id: number;
+  st_name: string;
+}
+
+interface District {
+  dis_id: number;
+  dis_name: string;
+}
+
+interface Lsgd {
+  lsgd_id: number;
+  lsg_name: string;
+}
 
 const formSchema = z.object({
   name: z.string().min(1).max(255),
@@ -42,19 +64,32 @@ const formSchema = z.object({
   referralcode: z.string().min(1).max(255),
 });
 
-export default function UserRegister() {
+function UserRegisterForm() {
   const { toast } = useToast();
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [lsgd, setLsgd] = useState([]);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [states, setStates] = useState<State[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [lsgd, setLsgd] = useState<Lsgd[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      name: "",
+      email: "",
+      mobile: "",
+      country: "",
+      state: "",
+      district: "",
+      lsg: "",
+      city: "",
+      address: "",
+      referralcode: "",
+      password: "",
+      gender: "",
+    },
   });
 
   useEffect(() => {
@@ -78,10 +113,11 @@ export default function UserRegister() {
     async function fetchLsgdData() {
       if (selectedDistrict) {
         const dist_id = districts.find((item) => item.dis_name === selectedDistrict)?.dis_id;
-        console.log('dist_id', dist_id);
-        const lsgResponse = await fetch(`${apiURL}/lsg/${dist_id}`);
-        const lsgData = await lsgResponse.json();
-        setLsgd(lsgData.district);
+        if (dist_id) {
+          const lsgResponse = await fetch(`${apiURL}/lsg/${dist_id}`);
+          const lsgData = await lsgResponse.json();
+          setLsgd(lsgData.district);
+        }
       }
     }
     fetchLsgdData();
@@ -93,13 +129,14 @@ export default function UserRegister() {
 
   useEffect(() => {
     if (ref) {
-      form.setValue("referralcode", ref);
+      //ts.ignore
+      form.setValue("referralcode", ref as string);
     }
   }, [ref, form]);
 
   const router = useRouter();
 
-  async function onSubmit(values) {
+  async function onSubmit(values: any) {
     const dataWithIds = {
       name: values.name,
       email: values.email,
@@ -207,7 +244,7 @@ export default function UserRegister() {
                       <Select onValueChange={(value) => {
                         field.onChange(value);
                         setSelectedCountry(value);
-                      }} defaultValue={field.value}>
+                      }} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Choose a country" />
@@ -235,7 +272,7 @@ export default function UserRegister() {
                         <Select onValueChange={(value) => {
                           field.onChange(value);
                           setSelectedState(value);
-                        }} defaultValue={field.value}>
+                        }} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Choose a state" />
@@ -264,7 +301,7 @@ export default function UserRegister() {
                         <Select onValueChange={(value) => {
                           field.onChange(value);
                           setSelectedDistrict(value);
-                        }} defaultValue={field.value}>
+                        }} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Choose a district" />
@@ -290,7 +327,7 @@ export default function UserRegister() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>LSGD</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Choose an LSGD" />
@@ -341,7 +378,7 @@ export default function UserRegister() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Gender</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select your gender" />
@@ -391,5 +428,13 @@ export default function UserRegister() {
       </div>
       <Footer />
     </section>
+  );
+}
+
+export default function UserRegister() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UserRegisterForm />
+    </Suspense>
   );
 }

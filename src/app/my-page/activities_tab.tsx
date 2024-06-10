@@ -6,7 +6,7 @@ import Table from "@/components/table";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { fetchActivityData } from "../api/my-page/route";
+import { fetchActivityData } from "@/app/requestsapi/request";
 
 const headings = [
   "Sl No",
@@ -18,7 +18,7 @@ const headings = [
   "Value",
 ];
 
-export default function ActivitiesTab({token}) {
+export default function ActivitiesTab({token}:any) {
   const [activity, setActivity] = useState([]);
 
   useEffect(() => {

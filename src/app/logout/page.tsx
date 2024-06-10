@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { useToast } from "@/components/ui/use-toast"
-import { apiURL } from '../api/status/route';
+import { apiURL } from '@/app/requestsapi/request';
 
 
 const Logout = () => {

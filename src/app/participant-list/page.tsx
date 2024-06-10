@@ -4,7 +4,7 @@ import ParticipantCard from "./card";
 import Navigationbar from "@/components/navigationBar";
 import Footer from "@/components/footer";
 import { Link } from "lucide-react";
-import { apiURL } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
 
 export default function ParticipantList() {
   const [participants, setParticipants] = useState([]);

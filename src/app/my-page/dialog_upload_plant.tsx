@@ -16,7 +16,7 @@ import { FormUploadActivities } from "./form_upload_activities"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FormUploadPlant } from "./form_upload_plant"
 
-export function DialogUploadPlant({token}) {
+export function DialogUploadPlant({token}:any) {
   return (
     <Dialog>
       <DialogTrigger asChild>

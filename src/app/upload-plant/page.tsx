@@ -20,7 +20,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { BsImages, BsPaperclip } from "react-icons/bs";
 import * as z from "zod";
-import { uploadPlantData } from "../api/upload-plant/route";
+import { uploadPlantData } from "@/app/requestsapi/request";
 import Cookies from 'js-cookie';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -71,7 +71,7 @@ export default function UploadPlant() {
     }
 
     try {
-      const response = await uploadPlantData(formData, token);
+      const response = await uploadPlantData(formData, token!);
       toast({
         title: "Submitted Successfully.",
         description: "Your plant has been uploaded successfully.",

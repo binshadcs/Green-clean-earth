@@ -15,7 +15,7 @@ import { Upload } from "lucide-react"
 import { FormUploadActivities } from "./form_upload_activities"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export function DialogUploadActivities({token}) {
+export function DialogUploadActivities({token}:any) {
   return (
     <Dialog>
       <DialogTrigger asChild>

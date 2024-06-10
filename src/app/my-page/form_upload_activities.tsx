@@ -1,11 +1,10 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
 import axios from "axios";
-import { apiURL } from "@/app/api/status/route";
-
-import { Button } from "@/components/ui/button"
+import { apiURL } from "@/app/requestsapi/request";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,60 +13,63 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { BsImages, BsPaperclip } from "react-icons/bs"
-import { useState, useEffect } from "react"
+import { BsImages, BsPaperclip } from "react-icons/bs";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { uploadActivityData } from "@/app/api/status/route";
+import { uploadActivityData } from "@/app/requestsapi/request";
 import { useToast } from "@/components/ui/use-toast";
 
-
 const MAX_FILE_SIZE = 1024 * 1024 * 5;
-const ACCEPTED_IMAGE_MIME_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-];
+const ACCEPTED_IMAGE_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ACCEPTED_IMAGE_TYPES = ["jpeg", "jpg", "png", "webp"];
 
 const formSchema = z.object({
-  "category":z.string(),
-  "sub_category":z.string(),
-  "name":z.string().max(255),
-  "address":z.string().max(255),
-  "activity_title":z.string().max(255),
-  "short_desc":z.string().max(255),
-  "social_link":z.string().max(255),
+  category: z.string(),
+  sub_category: z.string(),
+  name: z.string().max(255),
+  address: z.string().max(255),
+  activity_title: z.string().max(255),
+  short_desc: z.string().max(255),
+  social_link: z.string().max(255),
   activityThumbnail: z
     .any()
-    .refine((files) => {
-      return files?.[0]?.size <= MAX_FILE_SIZE;
-    }, `Max image size is 1MB.`)
-    .refine(
-      (files) => ACCEPTED_IMAGE_MIME_TYPES.includes(files?.[0]?.type),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
-    ),
-})
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, "Max image size is 1MB.")
+    .refine((files) => ACCEPTED_IMAGE_MIME_TYPES.includes(files?.[0]?.type), "Only .jpg, .jpeg, .png and .webp formats are supported."),
+});
 
-export function FormUploadActivities({token}) {
+interface Category {
+  activity_category: string;
+  activity_category_id: string;
+}
+
+interface SubCategory {
+  id: string;
+  name: string;
+}
+
+interface ActivitiesTabProps {
+  token: string;
+}
+
+export function FormUploadActivities({ token }: ActivitiesTabProps) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const { toast } = useToast();
 
-  const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
-  
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,13 +81,12 @@ export function FormUploadActivities({token}) {
       short_desc: "",
       social_link: "",
     },
-  })
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(`${apiURL}/activity_category`);
-        
         setCategories(response.data.activity_category);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -107,10 +108,10 @@ export function FormUploadActivities({token}) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const category = categories.find((item) => item.activity_category === values.category)?.activity_category_id;
-    
+
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("category", parseInt(category));
+    formData.append("category", category ? category : "");
     formData.append("subCategory", values.sub_category);
     formData.append("address", values.address);
     formData.append("activityTitle", values.activity_title);
@@ -119,19 +120,18 @@ export function FormUploadActivities({token}) {
     if (selectedImage) {
       formData.append("activityThumbnail", selectedImage);
     }
-    
 
     try {
       const response = await uploadActivityData(formData, token, id);
-      if(response.status==200){
-      toast({
-        title: "Submitted Successfully.",
-        description: "Your plant has been uploaded successfully.",
-      });
-      setTimeout(function() {
-        window.location.reload();
-      }, 1800);
-    }
+      if (response!.status == 200) {
+        toast({
+          title: "Submitted Successfully.",
+          description: "Your plant has been uploaded successfully.",
+        });
+        setTimeout(function () {
+          window.location.reload();
+        }, 1800);
+      }
     } catch (error) {
       toast({
         variant: "destructive",

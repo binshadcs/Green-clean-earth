@@ -1,28 +1,30 @@
 "use client";
 import Footer from "@/components/footer";
 import Navigationbar from "@/components/navigationBar";
-import { CircleUser, Images, List, UserRoundCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CircleUser, Images, List } from "lucide-react";
+import { useEffect, useState, Suspense } from "react";
 import ProfileTab from "./profile_tab";
 import MyUploadsTab from "./my_uploads_tab";
 import ActivitiesTab from "./activities_tab";
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from "next/navigation";
 
-const MyPage = () => {
+function MyPageContent() {
   const router = useRouter();
-  const token = Cookies.get('token')
-  if (!token) {
-    // Redirect to the login page
-    router.push("/login");
-  }
-    const [openTab, setOpenTab] = useState(1);
-    const searchParams = useSearchParams();
-    
-    return (
-      <div className="bg-green-50">
-        <Navigationbar />
-        <div className="container mx-auto md:max-w-5xl mt-4 min-h-screen">
+  const token = Cookies.get('token');
+  const [openTab, setOpenTab] = useState(1);
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
+    }
+  }, [token, router]);
+
+  return (
+    <div className="bg-green-50">
+      <Navigationbar />
+      <div className="container mx-auto md:max-w-5xl mt-4 min-h-screen">
         <h1 className="text-3xl my-4 font-bold mt-8">My Page</h1>
         <div className="flex flex-wrap">
           <div className="w-full">
@@ -43,7 +45,7 @@ const MyPage = () => {
                     setOpenTab(1);
                   }}
                   data-toggle="tab"
-                  href="link1"
+                  href="#link1"
                   role="tablist"
                 >
                   <CircleUser size={28} strokeWidth={1.75} /> Profile
@@ -62,15 +64,12 @@ const MyPage = () => {
                     setOpenTab(2);
                   }}
                   data-toggle="tab"
-                  href="link2"
+                  href="#link2"
                   role="tablist"
                 >
                   <Images size={28} strokeWidth={1.75} /> My Uploads
                 </a>
               </li>
-
-
-              
               <li className="-mb-px mr-2 last:mr-0 flex-auto text-center">
                 <a
                   className={
@@ -84,13 +83,10 @@ const MyPage = () => {
                     setOpenTab(3);
                   }}
                   data-toggle="tab"
-                  href="link3"
+                  href="#link3"
                   role="tablist"
                 >
-
-
-
-                  <List size={28} strokeWidth={1.75} />  Activities
+                  <List size={28} strokeWidth={1.75} /> Activities
                 </a>
               </li>
             </ul>
@@ -111,11 +107,16 @@ const MyPage = () => {
             </div>
           </div>
         </div>
-        </div>
-        <Footer/>
       </div>
-    );
-  };
-  
-  export default MyPage;
-  
+      <Footer/>
+    </div>
+  );
+}
+
+export default function MyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MyPageContent />
+    </Suspense>
+  );
+}

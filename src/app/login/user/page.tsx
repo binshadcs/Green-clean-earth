@@ -19,7 +19,7 @@ import Footer from "@/components/footer";
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 const formSchema = z.object({ "mobile": z.coerce.number().lte(9999999999), "password": z.string().min(1).max(255) })
-import { apiURL } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
 import { useToast } from "@/components/ui/use-toast"
 
 export default function UserLogin() {

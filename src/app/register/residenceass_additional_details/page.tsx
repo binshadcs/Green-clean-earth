@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { apiURL } from "@/app/api/status/route";
+import { apiURL } from "@/app/requestsapi/request";
 
 import { Input } from "@/components/ui/input"
 import {
@@ -25,7 +25,7 @@ import {
 import NavigationBar from "@/components/navigationBar";
 import Footer from "@/components/footer";
 import { useSearchParams,useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast"
 
 const formSchema = z.object(
@@ -33,7 +33,7 @@ const formSchema = z.object(
     "total_team":z.coerce.number(),
   })
 
-export default function ResidenceAssAdditionalDetails() {
+function ResidenceAssAdditionalDetailsForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
@@ -96,7 +96,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // districtId : districts.find((item) => item.dis_name === values.district)?.dis_id,
     // lsgdId : lsgd.find((item) => item.lsg_name === values.lsgdzone)?.lsg_id,
     totalNoOfMembers : values.total_team,
-    groupId: parseInt(group_id),
+    groupId: parseInt(group_id!),
    
 
   };
@@ -173,4 +173,12 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
   <Footer/>
 </section>
   )
+}
+
+export default function ResidenceAssAdditionalDetails() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResidenceAssAdditionalDetailsForm />
+    </Suspense>
+  );
 }
